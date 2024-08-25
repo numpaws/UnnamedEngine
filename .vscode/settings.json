@@ -1,0 +1,19 @@
+{
+	"files.trimFinalNewlines": true,
+	"files.trimTrailingWhitespace": true,
+	"files.eol": "\n",
+	"files.associations": {
+		"*.hxp": "haxe",
+		"*.hscript": "haxe",
+		"*.haxe": "haxe",
+		"*.hxs": "haxe",
+		"*.hxc": "haxe"
+	},
+	"files.insertFinalNewline": true,
+
+	"editor.codeActionsOnSave": {
+		"source.organizeImports": "never"
+	},
+	"editor.insertSpaces": false,
+	"editor.tabSize": 3
+}

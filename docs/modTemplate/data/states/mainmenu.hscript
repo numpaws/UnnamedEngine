@@ -1,0 +1,128 @@
+import flixel.util.FlxSave;
+import funkin.runtime.xml.XmlState;
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
+import flixel.effects.FlxFlicker;
+import funkin.assets.Paths;
+import flixel.math.FlxMath;
+import flixel.input.keyboard.FlxKey;
+import openfl.events.MouseEvent;
+import openfl.events.KeyboardEvent;
+import flixel.FlxG;
+import flixel.util.FlxAxes;
+import funkin.display.AtlasSprite;
+import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.FlxObject;
+import funkin.save.Options;
+
+persistentUpdate = true;
+
+if (!FlxG.sound.music?.playing) FlxG.sound.playMusic(Paths.music('freakyMenu'), 0.8);
+
+var save = new FlxSave();
+save.bind('UnnamedEngine/modTemplate', 'numpaws');
+
+var selection = save.data.mainmenu?.selection ?? 0;
+
+var itemLabels = [
+	'story_mode',
+	'freeplay',
+	'credits',
+	'options'
+];
+
+var yScroll = Math.max(0.25 - (0.05 * (itemLabels.length - 4)), 0.1);
+nodes['bg'].antialiasing = Options.data.antialiasing;
+nodes['bg'].scrollFactor.set(0, yScroll);
+nodes['bg'].setGraphicSize(nodes['bg'].width * 1.175);
+nodes['bg'].updateHitbox();
+nodes['bg'].screenCenter();
+
+nodes['magenta'].antialiasing = nodes['bg'].antialiasing;
+nodes['magenta'].scrollFactor.set(nodes['bg'].scrollFactor.x, nodes['bg'].scrollFactor.y);
+nodes['magenta'].scale.set(nodes['bg'].scale.x, nodes['bg'].scale.y);
+nodes['magenta'].updateHitbox();
+nodes['magenta'].setPosition(nodes['bg'].x, nodes['bg'].y);
+
+var items = new FlxTypedGroup();
+add(items);
+
+var yOffset = 108 - (Math.max(itemLabels.length, 4) - 4) * 80;
+yScroll = itemLabels.length < 6 ? 0 : (itemLabels.length - 4) * 0.135;
+for (i => label in itemLabels) {
+	var item = new AtlasSprite(0, (i * 140) + yOffset, 'mainmenu/menu_' + label);
+	item.antialiasing = Options.data.antialiasing;
+	item.animation.addByPrefix('idle', label + ' basic', 24);
+	item.animation.addByPrefix('selected', label + ' white', 24);
+	item.animation.play('idle');
+	items.add(item);
+	item.scrollFactor.set(0, yScroll);
+	item.updateHitbox();
+	item.screenCenter(FlxAxes.X);
+}
+
+FlxG.camera.follow(new FlxObject(), null, 0.04);
+
+function changeSelection(delta = 0) {
+	FlxG.sound.play(Paths.sound('scrollMenu'));
+
+	items.members[selection].animation.play('idle');
+	items.members[selection].updateHitbox();
+	items.members[selection].screenCenter(FlxAxes.X);
+
+	selection = FlxMath.wrap(selection + delta, 0, items.length - 1);
+
+	items.members[selection].animation.play('selected');
+	items.members[selection].centerOffsets();
+	items.members[selection].screenCenter(FlxAxes.X);
+
+	FlxG.camera.target.x = items.members[selection].getGraphicMidpoint().x;
+	FlxG.camera.target.y = items.members[selection].getGraphicMidpoint().y - (items.length <= 4 ? 0 : items.length * 8);
+}
+
+changeSelection();
+
+var selected = false;
+function postUpdate() {
+	var deltaSelection = 0;
+	if (FlxG.keys.justPressed.W || FlxG.keys.justPressed.UP) deltaSelection--;
+	if (FlxG.keys.justPressed.S || FlxG.keys.justPressed.DOWN) deltaSelection++;
+	if (FlxG.mouse.wheel != 0) deltaSelection -= FlxMath.signOf(FlxG.mouse.wheel);
+	if (deltaSelection != 0) changeSelection(deltaSelection);
+
+	if ((FlxG.keys.justPressed.SPACE || FlxG.keys.justPressed.ENTER || FlxG.mouse.justPressed) && !selected) {
+		selected = true;
+
+		FlxG.sound.play(Paths.sound('confirmMenu'));
+
+		if (Options.data.flashing) FlxFlicker.flicker(nodes['magenta'], 1.1, 0.15, false);
+		FlxFlicker.flicker(items.members[selection], , 0.06, false, false, (_) -> {
+			switch(itemLabels[selection]) {
+				case 'story_mode': // nope
+				case 'freeplay': FlxG.switchState(() -> new XmlState('freeplay'));
+				case 'credits': // nope
+				case 'options': // nope
+			}
+		});
+
+		for (i => item in items) {
+			if (i == selection) continue;
+
+			FlxTween.tween(item, {alpha: 0}, 0.4, {
+				ease: FlxEase.quadOut
+			});
+		}
+	}
+}
+FlxG.signals.postUpdate.add(postUpdate);
+
+function preStateSwitch() {
+	save.data.mainmenu = {
+		selection: selection
+	}
+	save.flush();
+
+	FlxG.signals.postUpdate.remove(postUpdate);
+	FlxG.signals.preStateSwitch.remove(preStateSwitch);
+}
+FlxG.signals.preStateSwitch.add(preStateSwitch);

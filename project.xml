@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+
+	<error value="You can't compile for this platform" unless="desktop"/>
+
+	<window
+		title="Friday Night Funkin' - Unnamed Engine"
+		width="1280"
+		height="720"
+		background="#000000"
+	/>
+
+	<app
+		file="UnnamedEngine"
+		main="Main"
+	/>
+
+	<meta
+		package="com.numpaws.unnamedengine"
+		version="0.1.0"
+		company="numpaws"
+	/>
+
+	<set name="BUILD_DIR" value="export/debug"   if="debug"/>
+	<set name="BUILD_DIR" value="export/release" if="release"/>
+	<set name="BUILD_DIR" value="export/32bit"   if="32bits"/>
+
+	<classpath name="source"/>
+
+	<!--
+		ASSETS
+	-->
+
+	<assets path="assets"/>
+	<assets path="mods"/>
+
+	<!--
+		HAXELIBS
+	-->
+
+	<haxelib name="lime"/>
+	<haxelib name="openfl"/>
+	<haxelib name="flixel"/>
+	<haxelib name="flixel-addons"/>
+	<haxelib name="flixel-ui"/>
+
+	<haxelib name="flxanimate"/>
+
+	<haxelib name="thx.semver"/>
+
+	<haxelib name="hscript-improved"/>
+	<haxelib name="hxvm-lua"/>
+	<haxelib name="linc_lua"/>
+
+	<haxelib name="discord_rpc" if="cpp"/>
+	<haxelib name="hldiscord"   if="hl"/>
+
+	<haxelib name="hxcpp-debug-server" if="cpp debug"/>
+
+	<!--
+		DEFINES
+	-->
+
+	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN"/> <!-- Disable Flixel focus lost screen -->
+	<haxedef name="FLX_NO_DEBUG"/> <!-- Disable Flixel debugger -->
+
+	<haxedef name="hscriptPos"/> <!-- Add some internal features to HScript. Removing it would break the engine -->
+	<haxedef name="CUSTOM_CLASSES"/> <!-- Allow creating custom classes in HScript -->
+
+	<haxedef name="no-deprecation-warnings"/>
+
+	<!--
+		MACROS
+	-->
+
+	<haxeflag name="--macro" value="funkin.macros.ScriptsMacro.run()"/>
+
+	<!--
+		ICONS
+	-->
+
+	<icon path="assets/images/internal/icon16.png" size="16"/>
+	<icon path="assets/images/internal/icon32.png" size="32"/>
+	<icon path="assets/images/internal/icon64.png" size="64"/>
+	<icon path="assets/images/internal/iconOG.png"/>
+
+</project>

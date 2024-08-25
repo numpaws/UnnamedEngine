@@ -1,0 +1,25 @@
+import funkin.display.AtlasList;
+import funkin.runtime.xml.XmlState;
+import flixel.FlxG;
+
+persistentUpdate = true;
+
+function postUpdate() {
+	if (FlxG.keys.justPressed.ESCAPE || FlxG.keys.justPressed.BACKSPACE) FlxG.switchState(() -> new XmlState('mainmenu'));
+}
+FlxG.signals.postUpdate.add(postUpdate);
+
+function preStateSwitch() {
+	FlxG.signals.postUpdate.remove(postUpdate);
+	FlxG.signals.preStateSwitch.remove(preStateSwitch);
+}
+FlxG.signals.preStateSwitch.add(preStateSwitch);
+
+var list = new AtlasList([
+	'song one',
+	'song two',
+	'song three'
+], 'bold');
+list.setPosition(90, 330);
+list.selectable = true;
+add(list);

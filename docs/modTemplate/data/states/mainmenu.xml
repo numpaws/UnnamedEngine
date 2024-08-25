@@ -1,0 +1,8 @@
+<state>
+	<sprite id="bg" image="menuBG"/>
+	<sprite id="magenta" image="menuDesat" color="#FD719B" visible="false"/>
+
+	<!-- Items created inside a script!!! -->
+	<script path="mainmenu.hscript"/>
+	<script path="mainmenu.lua"/>
+</state>

@@ -1,0 +1,5 @@
+<state>
+	<sprite image="menuDesat"/>
+
+	<script path="freeplay.hscript"/>
+</state>
